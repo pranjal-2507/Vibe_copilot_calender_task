@@ -42,13 +42,14 @@ npm run dev
 
 
 ## 📸 Screenshots
-![Calendar App UI](c:\Users\pranj\OneDrive\Pictures\Screenshots\Screenshot 2025-04-01 094910.png)
+![Screenshot 2025-04-01 094910](https://github.com/user-attachments/assets/aa49769e-7855-45e4-bd95-2261e8f94474)
+
 
 ---
 
 ### Frontend Deployed Link: 
-![CALENDAR APP](https://react-calendar-application-blush.vercel.app/)
+https://react-calendar-application-blush.vercel.app/
 
 
 ### Video Explanation: 
-![VIDEO](https://drive.google.com/file/d/1qWGIM0cke-w30fcN8l215gBYHb5Ci-EE/view?usp=sharing)
+https://drive.google.com/file/d/1qWGIM0cke-w30fcN8l215gBYHb5Ci-EE/view?usp=sharing
