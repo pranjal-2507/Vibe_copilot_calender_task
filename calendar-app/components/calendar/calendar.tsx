@@ -6,6 +6,7 @@ import { Plus } from "lucide-react"
 import CalendarHeader from "./calendar-header"
 import CalendarGrid from "./calendar-grid"
 import AddEntryModal from "./add-entry-modal"
+import EntryDetailsModal from "./entry-details-modal"
 import type { CalendarEntry, CalendarView } from "@/lib/types"
 import { useToast } from "@/components/ui/use-toast"
 import { Card } from "@/components/ui/card"
@@ -18,6 +19,8 @@ export default function Calendar() {
   const [entries, setEntries] = useState<CalendarEntry[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedEntry, setSelectedEntry] = useState<CalendarEntry | null>(null)
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const { toast } = useToast()
   // const { playSound, isAudioSupported } = useAudioPlayer()
 
@@ -107,6 +110,31 @@ export default function Calendar() {
     setIsModalOpen(true)
   }
 
+  const handleEntryClick = (entry: CalendarEntry) => {
+    setSelectedEntry(entry)
+    setIsDetailsModalOpen(true)
+  }
+
+  const handleDeleteEntry = (id: string) => {
+    setEntries(entries.filter((entry) => entry.id !== id))
+
+    toast({
+      title: "Entry deleted",
+      description: "The entry has been removed from your calendar.",
+      duration: 3000,
+    })
+  }
+
+  const handleEditEntry = (updatedEntry: CalendarEntry) => {
+    setEntries(entries.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)))
+
+    toast({
+      title: "Entry updated",
+      description: "Your changes have been saved.",
+      duration: 3000,
+    })
+  }
+
   return (
     <div className="relative space-y-6">
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
@@ -132,7 +160,13 @@ export default function Calendar() {
         >
           <Card className="p-4 shadow-md dark:shadow-lg dark:shadow-primary/5 rounded-xl border border-border/40 backdrop-blur-sm bg-card/95 transition-all duration-300">
             <div className="overflow-x-auto">
-              <CalendarGrid currentDate={currentDate} view={view} entries={entries} onDateClick={handleDateClick} />
+              <CalendarGrid
+                currentDate={currentDate}
+                view={view}
+                entries={entries}
+                onDateClick={handleDateClick}
+                onEntryClick={handleEntryClick}
+              />
             </div>
           </Card>
         </motion.div>
@@ -153,6 +187,17 @@ export default function Calendar() {
         onClose={() => setIsModalOpen(false)}
         onAddEntry={handleAddEntry}
         selectedDate={selectedDate}
+      />
+
+      <EntryDetailsModal
+        isOpen={isDetailsModalOpen}
+        onClose={() => {
+          setIsDetailsModalOpen(false)
+          setSelectedEntry(null)
+        }}
+        entry={selectedEntry}
+        onDelete={handleDeleteEntry}
+        onEdit={handleEditEntry}
       />
     </div>
   )

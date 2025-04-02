@@ -7,7 +7,7 @@ class Config:
     DEBUG = os.environ.get('FLASK_DEBUG', 'True') == 'True'
     
     # Database configuration
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'postgresql://postgres:postgres@localhost/calendar_app')
+    SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:Pranjal@localhost:3306/calenderapp'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT configuration

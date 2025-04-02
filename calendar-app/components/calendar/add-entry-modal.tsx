@@ -381,4 +381,3 @@ export default function AddEntryModal({ isOpen, onClose, onAddEntry, selectedDat
     </Dialog>
   )
 }
-

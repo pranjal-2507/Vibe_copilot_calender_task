@@ -26,9 +26,10 @@ interface CalendarGridProps {
   view: CalendarView
   entries: CalendarEntry[]
   onDateClick: (date: Date) => void
+  onEntryClick: (entry: CalendarEntry) => void
 }
 
-export default function CalendarGrid({ currentDate, view, entries, onDateClick }: CalendarGridProps) {
+export default function CalendarGrid({ currentDate, view, entries, onDateClick, onEntryClick }: CalendarGridProps) {
   const [filters, setFilters] = useState({
     tasks: true,
     meetings: true,
@@ -87,11 +88,32 @@ export default function CalendarGrid({ currentDate, view, entries, onDateClick }
   })
 
   if (view === "month") {
-    return <MonthView currentDate={currentDate} entries={filteredEntries} onDateClick={onDateClick} />
+    return (
+      <MonthView
+        currentDate={currentDate}
+        entries={filteredEntries}
+        onDateClick={onDateClick}
+        onEntryClick={onEntryClick}
+      />
+    )
   } else if (view === "week") {
-    return <WeekView currentDate={currentDate} entries={filteredEntries} onDateClick={onDateClick} />
+    return (
+      <WeekView
+        currentDate={currentDate}
+        entries={filteredEntries}
+        onDateClick={onDateClick}
+        onEntryClick={onEntryClick}
+      />
+    )
   } else {
-    return <DayView currentDate={currentDate} entries={filteredEntries} onDateClick={onDateClick} />
+    return (
+      <DayView
+        currentDate={currentDate}
+        entries={filteredEntries}
+        onDateClick={onDateClick}
+        onEntryClick={onEntryClick}
+      />
+    )
   }
 }
 
@@ -99,10 +121,12 @@ function MonthView({
   currentDate,
   entries,
   onDateClick,
+  onEntryClick,
 }: {
   currentDate: Date
   entries: CalendarEntry[]
   onDateClick: (date: Date) => void
+  onEntryClick: (entry: CalendarEntry) => void
 }) {
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(monthStart)
@@ -110,6 +134,11 @@ function MonthView({
   const endDate = endOfWeek(monthEnd)
 
   const days = eachDayOfInterval({ start: startDate, end: endDate })
+
+  const handleEntryClick = (entry: CalendarEntry) => {
+    // Handle the entry click, e.g., open a modal or navigate to details
+    console.log("Entry clicked:", entry)
+  }
 
   return (
     <div className="grid grid-cols-7 gap-1 md:gap-2">
@@ -152,7 +181,7 @@ function MonthView({
             </div>
             <div className="mt-1 md:mt-2 space-y-1 max-h-[80px] md:max-h-[90px] overflow-y-auto">
               {dayEntries.map((entry, index) => (
-                <EntryBadge key={index} entry={entry} />
+                <EntryBadge key={index} entry={entry} onClick={onEntryClick} />
               ))}
             </div>
           </motion.div>
@@ -166,16 +195,23 @@ function WeekView({
   currentDate,
   entries,
   onDateClick,
+  onEntryClick,
 }: {
   currentDate: Date
   entries: CalendarEntry[]
   onDateClick: (date: Date) => void
+  onEntryClick: (entry: CalendarEntry) => void
 }) {
   const weekStart = startOfWeek(currentDate)
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
   // Create time slots from 8 AM to 8 PM
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 8)
+
+  const handleEntryClick = (entry: CalendarEntry) => {
+    // Handle the entry click, e.g., open a modal or navigate to details
+    console.log("Entry clicked:", entry)
+  }
 
   return (
     <div className="flex flex-col overflow-x-auto">
@@ -236,7 +272,7 @@ function WeekView({
                 >
                   <div className="space-y-1 max-h-[72px] overflow-y-auto">
                     {hourEntries.map((entry, index) => (
-                      <EntryBadge key={index} entry={entry} />
+                      <EntryBadge key={index} entry={entry} onClick={onEntryClick} />
                     ))}
                   </div>
                 </motion.div>
@@ -253,14 +289,21 @@ function DayView({
   currentDate,
   entries,
   onDateClick,
+  onEntryClick,
 }: {
   currentDate: Date
   entries: CalendarEntry[]
   onDateClick: (date: Date) => void
+  onEntryClick: (entry: CalendarEntry) => void
 }) {
   // Create time slots from 8 AM to 8 PM
   const timeSlots = Array.from({ length: 13 }, (_, i) => i + 8)
   const isCurrentDay = isToday(currentDate)
+
+  const handleEntryClick = (entry: CalendarEntry) => {
+    // Handle the entry click, e.g., open a modal or navigate to details
+    console.log("Entry clicked:", entry)
+  }
 
   return (
     <div className="flex flex-col">
@@ -310,7 +353,7 @@ function DayView({
               >
                 <div className="space-y-1">
                   {hourEntries.map((entry, index) => (
-                    <EntryBadge key={index} entry={entry} />
+                    <EntryBadge key={index} entry={entry} onClick={onEntryClick} />
                   ))}
                 </div>
               </motion.div>
@@ -322,7 +365,7 @@ function DayView({
   )
 }
 
-function EntryBadge({ entry }: { entry: CalendarEntry }) {
+function EntryBadge({ entry, onClick }: { entry: CalendarEntry; onClick: (entry: CalendarEntry) => void }) {
   // Get background and text colors based on entry type
   const getColors = () => {
     switch (entry.type) {
@@ -368,9 +411,13 @@ function EntryBadge({ entry }: { entry: CalendarEntry }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
       className="mb-1"
+      onClick={(e) => {
+        e.stopPropagation() // Prevent triggering the day click
+        onClick(entry)
+      }}
     >
       <div
-        className={`w-full rounded-md px-2 py-1.5 shadow-sm hover:shadow transition-all duration-200 border-l-4 ${border} ${bg}`}
+        className={`w-full rounded-md px-2 py-1.5 shadow-sm hover:shadow transition-all duration-200 border-l-4 ${border} ${bg} cursor-pointer`}
         title={`${entry.title}${entry.description ? `: ${entry.description}` : ""}`}
       >
         <div className={`font-medium text-xs truncate ${text}`}>{entry.title}</div>

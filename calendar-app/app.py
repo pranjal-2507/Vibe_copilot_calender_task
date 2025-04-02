@@ -10,12 +10,13 @@ from routes.sync import sync_bp
 from routes.meeting_generator import meeting_generator_bp
 from routes.schedule import schedule_bp
 from routes.auth import auth_bp
+import traceback
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # Initialize extensions
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Allow all origins
 jwt = JWTManager(app)
 db.init_app(app)
 
@@ -32,18 +33,26 @@ app.register_blueprint(schedule_bp, url_prefix='/schedule')
 def health_check():
     return jsonify({"status": "healthy", "message": "Calendar API is running"}), 200
 
+@app.route('/check_db', methods=['GET'])
+def check_db():
+    try:
+        db.session.execute("SELECT 1")  # Corrected DB check
+        return jsonify({"status": "success", "message": "Database connected"}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Error handling improvements
 @app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Resource not found"}), 404
 
-@app.errorhandler(500)
-def server_error(e):
-    return jsonify({"error": "Internal server error"}), 500
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return jsonify({"error": "Something went wrong", "details": str(e)}), 500
 
-# Create database tables
+# Ensure database tables are created
 with app.app_context():
     db.create_all()
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(debug=True, port=8181)

@@ -45,26 +45,25 @@ def get_task(task_id):
     return jsonify(task.to_dict()), 200
 
 @tasks_bp.route('', methods=['POST'])
-@jwt_required()
 def create_task():
-    current_user_id = get_jwt_identity()
+    # current_user_id = get_jwt_identity()
     data = request.get_json()
-    
+    print(data)
     # Validate required fields
     if not data or not data.get('title') or not data.get('date'):
         return jsonify({"error": "Title and date are required"}), 400
-    
+    print(data)
     # Create new task
     new_task = Task(
         title=data['title'],
         description=data.get('description', ''),
         date=datetime.fromisoformat(data['date']),
         completed=data.get('completed', False),
-        assigned_to=data.get('assigned_to', ''),
+        assigned_to=data.get('assignedTo', ''),
         source=data.get('source', 'local'),
-        user_id=current_user_id
+        user_id=data["id"],
     )
-    
+    print(new_task)
     db.session.add(new_task)
     db.session.commit()
     
